@@ -1,0 +1,18 @@
+server:
+  port: 15000
+spring:
+  application:
+    name: javademo-tyh-job
+  redis:
+    database: 0
+    host: 10.11.12.237
+    lettuce:
+      pool:
+        max-active: 8   #连接池最大连接数（负值没有限制）
+        max-idle: 8   #连接池最大阻塞等待时间（负值没有时间限制）
+        max-wait: 10000   #连接池中最大空闲连接
+        min-idle: 0   #最小空闲连接
+      shutdown-timeout: 100   #关闭超时时间
+    password: ''
+    port: 6379
+    timeout: 10000
