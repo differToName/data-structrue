@@ -1,8 +1,4 @@
-server:
-  port: 15000
 spring:
-  application:
-    name: javademo-tyh-job
   redis:
     database: 0
     host: 10.11.12.237
