@@ -3,8 +3,6 @@ server:
 spring:
   application:
     name: learn-prj
-  profiles:
-    active: 
 #spring:
 #  datasource:
 #    driver-class-name: com.mysql.jdbc.Driver

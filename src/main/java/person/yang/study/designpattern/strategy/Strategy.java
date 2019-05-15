@@ -18,6 +18,8 @@ public class Strategy {
         //而策略模式和简单工厂模式的结合，main方法中只需关注ContextWithFactory类，降低了耦合
         ContextWithFactory contextWithFactory = new ContextWithFactory("A");
         contextWithFactory.getResult();
+//        String a = "1234567";
+//        System.out.println(a.substring(1,3));
     }
 }
 
@@ -94,6 +96,7 @@ class Context{
 
 /**
  * 策略模式和工厂模式的结合
+ * 策略模式和简单工厂模式的结合，main方法中只需关注ContextWithFactory类，降低了耦合
  */
 class ContextWithFactory{
     StrategyAbs strategyAbs = null;
