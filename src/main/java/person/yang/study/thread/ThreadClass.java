@@ -20,34 +20,51 @@ public class ThreadClass {
     @Autowired
     MethodClass methodClass;
 
-    Integer thnum = 10;
+    Integer thnum = 2;
 
     public void testMth() throws Exception{
         ThreadModel model = new ThreadModel("1","+","1234",1);
         ThreadModel model1 = new ThreadModel("2","-","1234",2);
         ThreadModel model2 = new ThreadModel("6","=","1234",3);
         ThreadModel model3 = new ThreadModel("3","*","1234",3);
-        ThreadModel model4 = new ThreadModel("4","1234","1234",2);
-        ThreadModel model5 = new ThreadModel("5","1234","1234",4);
-        BlockQueue.SENDCACHEQUEUE.put(model);
-        BlockQueue.SENDCACHEQUEUE.put(model1);
-        BlockQueue.SENDCACHEQUEUE.put(model2);
-        BlockQueue.SENDCACHEQUEUE.put(model3);
-       // BlockQueue.SENDCACHEQUEUE.put(model4);
-        //BlockQueue.SENDCACHEQUEUE.put(model5);
+        ThreadModel model4 = new ThreadModel("4",")","1234",2);
+        ThreadModel model5 = new ThreadModel("5","(","1234",4);
+//BlockingQueue重复插入后修改会影响后续对象值
+            BlockQueue.SENDCACHEQUEUE.put(model);
+            BlockQueue.SENDCACHEQUEUE.put(model1);
+            BlockQueue.SENDCACHEQUEUE.put(model2);
+            BlockQueue.SENDCACHEQUEUE.put(model3);
+            BlockQueue.SENDCACHEQUEUE.put(model4);
+            BlockQueue.SENDCACHEQUEUE.put(model5);
 
         ExecutorService threadPool = Executors.newFixedThreadPool(thnum);
 
-        Runnable runner = () -> {
-            ThreadModel modelTemp = new ThreadModel();
-            try{
-                modelTemp = BlockQueue.SENDCACHEQUEUE.poll(60, TimeUnit.SECONDS);
-                methodClass.doSomething(modelTemp);
-                System.out.println(modelTemp+"------当前线程"+Thread.currentThread().getName());
-            }catch(Exception e){
-                System.out.println("错误");
-            }
+//加个循环就行了
+//        threadPool.execute(() -> {
+//            while (true) {
+//                ThreadModel modelTemp = new ThreadModel();
+//                try {
+//                    modelTemp = BlockQueue.SENDCACHEQUEUE.poll(60, TimeUnit.SECONDS);
+//                    methodClass.doSomething(modelTemp);
+//                    System.out.println(modelTemp + "------当前线程" + Thread.currentThread().getName());
+//                } catch (Exception e) {
+//                    System.out.println("错误");
+//                }
+//            }
+//        });
 
+        Runnable runner = () -> {
+            while(!BlockQueue.SENDCACHEQUEUE.isEmpty()) {
+                ThreadModel modelTemp = new ThreadModel();
+                try {
+                    modelTemp = BlockQueue.SENDCACHEQUEUE.poll(60, TimeUnit.SECONDS);
+                    System.out.println("当前处理："+modelTemp);
+                    methodClass.doSomething(modelTemp);
+                    System.out.println(modelTemp + "------当前线程" + Thread.currentThread().getName());
+                } catch (Exception e) {
+                    System.out.println("错误");
+                }
+            }
         };
 
         for(int i = 0;i < thnum ;i++){
