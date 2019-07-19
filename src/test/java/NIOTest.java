@@ -1,13 +1,13 @@
-package person.yang.study.nio;
+import io.netty.buffer.ByteBuf;
+import org.junit.Test;
 
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 /**
- * @ClassName NIOLearning
- * @Description: NIO相关测试
+ * @ClassName NIOTest
+ * @Description:
  * @Author ylyang
- * @Date 2019/7/16 19:42
+ * @Date 2019/7/16 16:30
  **/
 /**
  * 1.常见缓冲区：
@@ -33,14 +33,10 @@ import java.nio.ByteBuffer;
  *     private int position = 0;//位置，表示缓冲区中可以操作数据的位置
  *     private int limit;//界限，表示缓冲区中可以操作数据的大小，即limit之后数据不能进行读写
  *     private int capacity;//容量，表示缓冲区中最大存储数据的容量，一旦声明不能改变
- *
- * 4.直接缓冲区和非直接缓冲区
- *     非直接换从区：通过allocate()方法分配缓冲区，将缓冲区建立在JVM的内存中
- *     直接缓冲区：通过allocateDirect()方法分配直接缓冲区，将缓冲区建立在物理内存中。可以提高效率
  */
-public class NIOLearning {
-
-    public static void nioTest(){
+public class NIOTest {
+    @Test
+    public void nioTest(){
         String testStr = "abcd";
         //分配缓冲区大小
         ByteBuffer buffer = ByteBuffer.allocate(1024);
@@ -100,20 +96,12 @@ public class NIOLearning {
         newBuf.reset();
         System.out.println(newBuf.position());//0
 
-        //其它方法：判断缓冲区中是否还有元素
+        //其它方法：是否还有空余操作空间
         if(newBuf.hasRemaining()){
             //输出剩余操作空间,此处是读模式，故只有5
+            newBuf.flip();
             System.out.println(newBuf.remaining());//5
         }
-    }
 
-    //直接缓冲区，直接分配物理内存
-    public static void directBufferTest(){
-        //直接分配物理内存
-        ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
-    }
-
-    public static void main(String[] args){
-        nioTest();
     }
 }
