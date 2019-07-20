@@ -45,7 +45,9 @@ import java.nio.file.StandardOpenOption;
  * 5.分散(Scatter)和聚集(Gather)
  *      分散读取(Scattering Reads):将通道中的数据分散到多个缓冲区
  *      聚集写入(Gathering Writes):将多个缓冲区中的数据 聚集到通道中
- * 6.字符集
+ * 6.字符集:Charset
+ *      编码：字符串-->字节数组
+ *      解码：字节数组-->字符串
  */
 public class ChannelTest {
 
