@@ -9,10 +9,17 @@ package person.yang.study.nio;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 1.通道(Channel):
@@ -189,7 +196,7 @@ public class ChannelTest {
     }
 
     /**
-     * 测试分散和聚集
+     * 测试5小点，分散和聚集
      */
     public static void testMethod5(){
         RandomAccessFile scatterFile = null;
@@ -223,10 +230,61 @@ public class ChannelTest {
         }
     }
 
+    //测试6小点，字符编码
+    public static void getCharsets(){
+        Map<String, Charset> map = Charset.availableCharsets();
+        Set<Map.Entry<String,Charset>> set = map.entrySet();
+        for(Map.Entry<String,Charset> entry : set){
+            System.out.println(entry.getKey() + "=" +entry.getValue());
+        }
+    }
+
+    //测试6小点，字符编码
+    public static void testCharset(){
+        Charset cs1 = Charset.forName("GBK");
+
+        //获取编码器
+        CharsetEncoder ce = cs1.newEncoder();
+        //获取解码器
+        CharsetDecoder de = cs1.newDecoder();
+
+        CharBuffer charBuffer = CharBuffer.allocate(1024);
+        charBuffer.put("哈嘿哈嘿嘿：");
+        //改为读模式
+        charBuffer.flip();
+
+        //编码
+        try {
+            //使用cs1的编码器
+            ByteBuffer byteBuffer = ce.encode(charBuffer);
+            for(int i = 0;i<12;i++){//此处是
+                System.out.println(byteBuffer.get());
+            }
+
+            //解码
+            byteBuffer.flip();
+            //此处用的是cs1的解码器
+            CharBuffer cBuf2 = de.decode(byteBuffer);
+            System.out.println(cBuf2.toString());//哈嘿哈嘿嘿：
+            //--------------------------区别上面的GBK编码，此处使用UTF-8的编码
+            Charset cs2 = Charset.forName("UTF-8");
+            //UTF-8方式解码
+            //??? 疑问，为什么还需要改为读模式
+            byteBuffer.flip();
+            CharBuffer utf8Buffer = cs2.decode(byteBuffer);//乱码 ���ٹ��ٺ٣�
+            System.out.println(utf8Buffer.toString());
+
+        } catch (CharacterCodingException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String args[]){
         //testMethodOne();
         //testMethodOne2();
         //testMethod4();
-        testMethod5();
+        //testMethod5();
+        //getCharsets();
+        testCharset();
     }
 }
