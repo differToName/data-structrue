@@ -14,11 +14,9 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * 1. 使用NIO完成网络通信的三个核心
@@ -37,6 +35,7 @@ import java.util.Iterator;
  */
 public class NonBlockingNIOServer {
 
+    //TCP模式
     public static void serverTest(){
         ServerSocketChannel serverSocketChannel = null;
         SocketChannel clientChannel = null;
@@ -49,7 +48,7 @@ public class NonBlockingNIOServer {
             //3. 绑定连接
             //或者使用，则不用绑定
             // Socket socket = new Socket(InetAddress.getByName("127.0.0.1"),8999);
-            // ServerSocketChannel = socket.getChannel();
+            // serverSocketChannel = socket.getChannel();
             serverSocketChannel.bind(new InetSocketAddress("127.0.0.1",8999));
 
             //4. ☺！！获取选择器
@@ -65,7 +64,7 @@ public class NonBlockingNIOServer {
                     //8. ☺ 获取准备 就绪 的事件
                     SelectionKey sk = iterator.next();
                     //9. ☺ 判断具体是什么事件 准备就绪
-                    if(sk.isAcceptable()){//是接收准备就绪事件
+                    if(sk.isAcceptable()){//是接收准备就绪事件,------此处和13可采用多个线程处理
                         //10. ☺ 是接收准备就绪则获取客户端连接
                         clientChannel = serverSocketChannel.accept();
                         //11. ☺ 切换为非阻塞模式
@@ -104,8 +103,57 @@ public class NonBlockingNIOServer {
         }
     }
 
+    //UDP模式
+    public static void udpReciver(){
+        DatagramChannel datagramChannel = null;
+
+        try {
+            //打开获取通道
+            datagramChannel = DatagramChannel.open();
+            //切换为非阻塞模式
+            datagramChannel.configureBlocking(false);
+            //指定端口号
+            datagramChannel.bind(new InetSocketAddress(8900));
+            //指定选择器
+            Selector selector = Selector.open();
+            //将通道注册到选择器中,并设置监听类型
+            datagramChannel.register(selector,SelectionKey.OP_READ);
+            //遍历选择器上已经就绪的通道
+            //Selects a set of keys whose corresponding channels are ready for I/O operations
+            while(selector.select() > 0){//选择器中还可根据超时时间来判断
+                //获取选择器上所有已注册的选择键
+                Iterator<SelectionKey> sks = selector.selectedKeys().iterator();
+                while(sks.hasNext()){
+                    SelectionKey selectionKey = sks.next();
+                    if(selectionKey.isReadable()){//是可读事件key吗
+                        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+                        datagramChannel.receive(byteBuffer);
+                        byteBuffer.flip();
+                        System.out.println(new String(byteBuffer.array(),0,byteBuffer.limit()));
+                        byteBuffer.clear();
+                    }
+                    //删除上一次next元素
+                    sks.remove();
+                }
+
+            }
+
+            ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+            while (datagramChannel.read(byteBuffer) > 0){
+                byteBuffer.flip();
+                System.out.println(new String(byteBuffer.array()));
+                byteBuffer.clear();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            NIOBlockingServer.closed(datagramChannel);
+        }
+    }
+
     public static void main(String[] args){
-        serverTest();
+//        serverTest();
+        udpReciver();
     }
 
 }

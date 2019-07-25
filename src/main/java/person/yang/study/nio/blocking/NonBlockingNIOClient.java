@@ -10,6 +10,7 @@ package person.yang.study.nio.blocking;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 import java.nio.channels.SocketChannel;
 import java.time.LocalDateTime;
 import java.util.Scanner;
@@ -31,7 +32,7 @@ import java.util.Scanner;
  */
 public class NonBlockingNIOClient {
 
-    //客户端
+    //客户端，TCP
     public static void clientTest(){
         SocketChannel socketChannel = null;
         try {
@@ -58,7 +59,32 @@ public class NonBlockingNIOClient {
         }
     }
 
-    public static void main(String[] args){
-        clientTest();
+    //UDP 客户端
+    public static void udpSender(){
+        DatagramChannel datagramChannel = null;
+        try {
+            //打开获取通道
+            datagramChannel = DatagramChannel.open();
+            //切换为非阻塞模式
+            datagramChannel.configureBlocking(false);
+            ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+            Scanner scanner = new Scanner(System.in);
+            while(scanner.hasNext()){
+                byteBuffer.put(scanner.next().getBytes());
+                byteBuffer.flip();
+                datagramChannel.send(byteBuffer,new InetSocketAddress("127.0.0.1",8900));
+                byteBuffer.clear();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            NIOBlockingServer.closed(datagramChannel);
+        }
     }
+
+    public static void main(String[] args){
+//        clientTest();
+        udpSender();
+    }
+
 }
