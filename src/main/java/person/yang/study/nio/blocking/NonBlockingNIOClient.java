@@ -12,6 +12,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.time.LocalDateTime;
+import java.util.Scanner;
 
 /**
  * 1. 使用NIO完成网络通信的三个核心
@@ -41,13 +42,19 @@ public class NonBlockingNIOClient {
             //3. 分配指定大小的缓冲区，用于读取数据
             ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
             //4. 读取数据并放入通道
-            byteBuffer.put(LocalDateTime.now().toString().getBytes());
-            socketChannel.write(byteBuffer);
+            Scanner scanner = new Scanner(System.in);
+            while (scanner.hasNext()){
+               String str = scanner.next();
+                byteBuffer.put((LocalDateTime.now().toString()+"\n:"+str).getBytes());
+                byteBuffer.flip();
+                socketChannel.write(byteBuffer);
+                byteBuffer.clear();
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
-
+            NIOBlockingServer.closed(socketChannel);
         }
     }
 
